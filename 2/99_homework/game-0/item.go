@@ -20,3 +20,18 @@ func (item *Item) GetName() string {
 func (item *Item) IsWearable() bool {
 	return item.wearable
 }
+
+type Lock struct {
+	Item
+	locked bool
+	locationToLock *Location
+}
+
+func NewLock(lockName string, locationToLock *Location) *Lock {
+	lock := new(Lock)
+	lock.name = lockName
+	lock.locked = true
+	lock.locationToLock = locationToLock
+
+	return lock
+}

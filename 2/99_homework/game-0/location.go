@@ -7,8 +7,11 @@ import (
 type Location struct {
 	name string
 	description string
+	welcomeMessage string
+	emptyMessage string
 	nearbyLocations []*Location
 	availableItems map[string][]*Item
+	locks []*Lock
 }
 
 func NewLocation(name string) *Location {
@@ -33,20 +36,20 @@ func (location *Location) GetNearbyLocations() []*Location {
 }
 
 func (location *Location) AddNearbyLocation(locationToAdd *Location) error {
-	if location.HasNearbyLocation(locationToAdd.name) || locationToAdd.name == location.name {
+	if location.GetNearbyLocation(locationToAdd.name) != nil  || locationToAdd.name == location.name {
 		return fmt.Errorf("Cannot add nearby location with name: " + location.GetName())
 	}
 	location.nearbyLocations = append(location.nearbyLocations, locationToAdd)
 	return nil
 }
 
-func (location *Location) HasNearbyLocation(locationName string) bool {
+func (location *Location) GetNearbyLocation(locationName string) *Location {
 	for _, location := range location.nearbyLocations {
 		if location.name == locationName {
-			return true
+			return location
 		}
 	}
-	return false
+	return nil
 }
 
 func (location *Location) GetNearbyLocationsString() string {
@@ -70,6 +73,22 @@ func (location *Location) SetDescription(description string) {
 
 func (location *Location) GetDescription() string {
 	return location.description
+}
+
+func (location *Location) SetWelcomeMessage(message string) {
+	location.welcomeMessage = message
+}
+
+func (location *Location) GetWelcomeMessage() string {
+	return location.welcomeMessage
+}
+
+func (location *Location) SetEmptyMessage(message string) {
+	location.emptyMessage = message
+} 
+
+func (location *Location) GetEmptyMessage() string {
+	return location.emptyMessage
 }
 
 func (location *Location) AddItem(position string, itemName string, isWearable bool) {
@@ -111,7 +130,6 @@ func (location *Location) GetAvailableItemsString() (result string) {
 }
 
 func (location *Location) FindItem(itemName string) (string, int, *Item) {
-	fmt.Println(location)
 	for position, items := range location.GetAvailableItems() {
 		for index, item := range items {
 			if item.GetName() == itemName {
@@ -121,4 +139,12 @@ func (location *Location) FindItem(itemName string) (string, int, *Item) {
 	}
 
 	return "", -1, nil
+}
+
+func (location *Location) AddLock(itemName string, locationToLock *Location) {
+	location.locks = append(location.locks, NewLock(itemName, locationToLock))
+}
+
+func (location *Location) Unlock() {
+	location.locks = nil 	// key opens all doors in location
 }

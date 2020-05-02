@@ -15,30 +15,36 @@ func NewPlayer(nickname string, initialLocation *Location) *Player {
 	player := new(Player)
 	player.nickname = nickname
 	player.currentLocation = initialLocation
+	player.hasBackpack = false
 
 	return player
 }
 
 func (player *Player) SwitchLocation(locationName string) string {
-	if !(player.currentLocation.HasNearbyLocation(locationName)) {
+	locationToGo := player.currentLocation.GetNearbyLocation(locationName)
+
+	if locationToGo == nil {
 		return fmt.Sprintf("нет пути в %s", locationName)
 	}
-	
-	for _, location := range player.currentLocation.GetNearbyLocations() {
-		if (location.GetName() == locationName) {
-			player.currentLocation = location
-			return player.currentLocation.GetDescription() + player.currentLocation.GetNearbyLocationsString()
+
+	for _, lock := range player.currentLocation.locks {
+		if lock.locationToLock.GetName() == locationName {
+			return "дверь закрыта"
 		}
 	}
 
-	return fmt.Sprintf("нет пути в %s", locationName)
+	player.currentLocation = locationToGo
+	return player.currentLocation.GetWelcomeMessage() + player.currentLocation.GetNearbyLocationsString()
 }
 
 func (player *Player) LookAround() (result string) {
 	result = player.currentLocation.GetAvailableItemsString()
 
-	result += player.currentLocation.GetNearbyLocationsString()
+	if result == "" && !(player.currentLocation.GetName() == "кухня" && !player.hasBackpack) {
+		return player.currentLocation.GetEmptyMessage() + player.currentLocation.GetNearbyLocationsString()
+	}
 
+	result += player.currentLocation.GetDescription() + player.currentLocation.GetNearbyLocationsString()
 	return result
 }
 
@@ -92,6 +98,26 @@ func (player *Player) WearItem(itemName string) (result string) {
 	return "вы одели: " + item.GetName()
 }
 
+func (player *Player) UseItem(itemName string, itemToUseOn string) string {
+	var inventoryItem *Item
+	for _, item := range player.inventory {
+		if (item.GetName() == itemName) {
+			inventoryItem = item
+			break
+		}
+	}
+
+	if (inventoryItem == nil) {
+		return "нет предмета в инвентаре - " + itemName
+	}
+
+	if itemName == "ключи" && itemToUseOn == "дверь" {
+		player.currentLocation.Unlock()
+		return "дверь открыта"
+	}
+
+	return "не к чему применить"
+}
 
 func (player *Player) PerformAction(command string, parameters ...string) (result string) {
 	switch command {
@@ -103,6 +129,8 @@ func (player *Player) PerformAction(command string, parameters ...string) (resul
 		return player.PickupItem(parameters[0])
 	case "одеть":
 		return player.WearItem(parameters[0])
+	case "применить":
+		return player.UseItem(parameters[0], parameters[1])
 	default:
 		return "неизвестная команда"
 	}

@@ -14,14 +14,18 @@ func initGame() {
 	home := NewLocation("домой")
 
 	kitchen.SetDescription("ты находишься на кухне, на столе чай, надо собрать рюкзак и идти в универ.")
-	hallway.SetDescription("ничего интересного.")
-	room.SetDescription("ты в своей комнате.")
-	outside.SetDescription("на улице весна.")
+	kitchen.SetWelcomeMessage("кухня, ничего интересного.")
+	kitchen.SetEmptyMessage("ты находишься на кухне, на столе чай, надо идти в универ.")
+	hallway.SetWelcomeMessage("ничего интересного.")
+	room.SetWelcomeMessage("ты в своей комнате.")
+	room.SetEmptyMessage("пустая комната.")
+	outside.SetWelcomeMessage("на улице весна.")
 
 	kitchen.AddNearbyLocation(hallway)
 	hallway.AddNearbyLocation(kitchen)
 	hallway.AddNearbyLocation(room)
 	hallway.AddNearbyLocation(outside)
+	hallway.AddLock("дверь", outside)
 	room.AddNearbyLocation(hallway)
 	outside.AddNearbyLocation(home)
 
