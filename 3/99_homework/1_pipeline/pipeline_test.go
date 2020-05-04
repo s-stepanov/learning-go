@@ -71,5 +71,4 @@ func TestMain(t *testing.T) {
 		t.Errorf("Failed output, expected %s got %s", expected2, res2)
 		t.FailNow()
 	}
-
 }
