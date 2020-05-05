@@ -16,8 +16,3 @@ func NewGame() *Game {
 
 	return game
 }
-
-// StartNewGame Game factory function
-func StartNewGame() {
-
-}

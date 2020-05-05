@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"errors"
 	"sort"
+	"sync"
 )
 
 type Location struct {
@@ -15,6 +16,8 @@ type Location struct {
 	availableItems map[string][]*Item
 	playersInLocation []*Player
 	locks []*Lock
+
+	mutex *sync.Mutex
 }
 
 func NewLocation(name string) *Location {
@@ -22,6 +25,8 @@ func NewLocation(name string) *Location {
 	location.name = name
 	location.description = ""
 	location.availableItems = make(map[string][]*Item)
+
+	location.mutex = &sync.Mutex{}
 	
 	return location
 }
@@ -98,6 +103,9 @@ func (location *Location) GetEmptyMessage() string {
 }
 
 func (location *Location) AddItem(position string, itemName string, isWearable bool) {
+	location.mutex.Lock()
+	defer location.mutex.Unlock()
+
 	location.availableItems[position] = append(location.availableItems[position], NewItem(itemName, isWearable))
 }
 
@@ -167,10 +175,15 @@ func (location *Location) Unlock() {
 }
 
 func (location *Location) addPlayerToLocation(player *Player) {
+	location.mutex.Lock()
+	defer location.mutex.Unlock()
 	location.playersInLocation = append(location.playersInLocation, player)
 }
 
 func (location *Location) removePlayerFromLocation(player *Player) error {
+	location.mutex.Lock()
+	defer location.mutex.Unlock()
+	
 	index := -1
 	for i, el := range location.playersInLocation {
 		if (player.GetNickname() == el.GetNickname()) {

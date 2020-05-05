@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"time"
 )
 
 const LocationsCount = 5
@@ -45,4 +47,17 @@ func addPlayer(player *Player) {
 
 func main() {
 	initGame()
+	player := NewPlayer("Tristan")
+	addPlayer(player)
+
+	go func() {
+		res := player.GetOutput()
+		for i := range res {
+			fmt.Println(i)
+		}
+	}()
+
+	player.HandleInput("идти коридор")
+
+	time.Sleep(time.Millisecond)
 }
