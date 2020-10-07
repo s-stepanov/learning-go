@@ -1,3 +1,5 @@
+asdfasdf
+
 Материалы для дополнительного чтения:
 https://golang.org/ref/spec
 https://golang.org/doc/code.html
